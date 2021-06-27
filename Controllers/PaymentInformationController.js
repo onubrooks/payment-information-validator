@@ -1,6 +1,6 @@
 const Helpers = require("../Lib/Helpers")
 
-module.exports = class PaymentInformationController {
+class PaymentInformationController {
   /**
    *
    * @param {http.IncomingMessage} req
@@ -17,16 +17,24 @@ module.exports = class PaymentInformationController {
           this.handleResponse(res, 401, "unauthorized request")
       }
       await Helpers.bodyParser(req)
+  
       let contentType = req.headers['content-type']
-    //   res.writeHead(200, {
-    //     "Content-Type": "application/json"
-    //   });
 
-    //   res.write(JSON.stringify(req.body));
-      res.write(req.body);
-
-      res.end();
-
+      if(contentType == 'application/xml'){
+        res.write("xml detected");
+        res.write(req.body);
+        res.end();
+      }else if (contentType == "application/json") {
+        let body = JSON.parse(req.body);
+        res.writeHead(200, {
+          "Content-Type": "application/json"
+        });
+        res.write(JSON.stringify({Valid: true}));
+        res.end();
+      } else{
+        this.handleResponse(res, 403, `Forbidden: unsupported content type ${contentType}`);
+      }
+      
     } catch (error) {
 
       console.log(error);
@@ -50,3 +58,5 @@ module.exports = class PaymentInformationController {
     res.end(message);
   }
 };
+
+module.exports = PaymentInformationController
