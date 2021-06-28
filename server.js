@@ -8,9 +8,9 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === "/api/validate-card"){
 
         paymentInformationController.handle(req, res);
-    }else {
-        paymentInformationController.handleResponse(res, 404, "route not found");
+        return;
     }
+    paymentInformationController.handleResponse(res, 404, "route not found");
 })
 
 const PORT = process.env.PORT || 5000

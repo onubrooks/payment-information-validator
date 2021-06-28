@@ -9,14 +9,17 @@ class PaymentInformationController {
    * @return {http.ServerResponse}
    */
   async handle(req, res) {
+    await Helpers.bodyParser(req)
+    let body = JSON.parse(req.body);
     try {
         // handle authorization
       let authorization = req.headers['authorization'] || ""
       let token = authorization.split(' ')[1]
-      if(!token){
+      let auth = Helpers.authorize(token, body);// res.write(JSON.stringify(auth));res.end();return
+      if(!auth){
           this.handleResponse(res, 401, "unauthorized request")
+          return;
       }
-      await Helpers.bodyParser(req)
   
       let contentType = req.headers['content-type']
 
@@ -25,7 +28,6 @@ class PaymentInformationController {
         res.write(req.body);
         res.end();
       }else if (contentType == "application/json") {
-        let body = JSON.parse(req.body);
         res.writeHead(200, {
           "Content-Type": "application/json"
         });
