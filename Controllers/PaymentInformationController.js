@@ -1,6 +1,10 @@
 const Helpers = require("../Lib/Helpers")
 
+const Validator = require("./Validator")
+const CreditCardValidator = require("../Validations/CreditCard")
+
 class PaymentInformationController {
+
   /**
    *
    * @param {http.IncomingMessage} req
@@ -28,14 +32,50 @@ class PaymentInformationController {
         res.write(req.body);
         res.end();
       }else if (contentType == "application/json") {
+        let creditCardValidator = new CreditCardValidator();
+        let allRules = {
+          card_number: [creditCardValidator.validateCardNumber],
+          cvv: [creditCardValidator.validateCVV]
+        }
+        let validator = new Validator()
+        let validationResults = validator.validate(body, allRules);
         res.writeHead(200, {
           "Content-Type": "application/json"
         });
-        res.write(JSON.stringify({Valid: true}));
+        res.write(JSON.stringify(validationResults));
+        // res.write(JSON.stringify({Valid: true}));
         res.end();
       } else{
         this.handleResponse(res, 403, `Forbidden: unsupported content type ${contentType}`);
       }
+      
+    } catch (error) {
+
+      console.log(error);
+
+      this.handleResponse(res, 500, "something went wrong...");
+
+    }
+  }
+
+  /**
+   * return a hmac hash of the request you want to validate
+   * 
+   * @param {http.IncomingMessage} req
+   * @param {http.ServerResponse} res
+   *
+   * @return {http.ServerResponse}
+   */
+  async getHash(req, res) {
+    await Helpers.bodyParser(req)
+    let body = JSON.parse(req.body);
+    try {
+      let hash = Helpers.getHash(body);
+      res.writeHead(200, {
+        "Content-Type": "application/json"
+      });
+      res.write(hash);
+      res.end();
       
     } catch (error) {
 

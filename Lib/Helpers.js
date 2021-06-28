@@ -32,7 +32,18 @@ function authorize(token, body){
   return hash == token
 }
 
+function getHash(body) {
+  let json = JSON.stringify(body);
+
+  const PRIVATE_KEY = "i-love-node-js";
+  let hmac = crypto.createHmac("sha512", PRIVATE_KEY);
+  hmac.update(json);
+  return hmac.digest("hex");
+
+}
+
 module.exports = {
     bodyParser,
-    authorize
+    authorize,
+    getHash
 }

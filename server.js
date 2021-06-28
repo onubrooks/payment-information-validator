@@ -10,6 +10,11 @@ const server = http.createServer((req, res) => {
         paymentInformationController.handle(req, res);
         return;
     }
+    if (req.method === 'POST' && req.url === "/api/get-hash"){
+
+        paymentInformationController.getHash(req, res);
+        return;
+    }
     paymentInformationController.handleResponse(res, 404, "route not found");
 })
 
