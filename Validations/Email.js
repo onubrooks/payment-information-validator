@@ -1,3 +1,9 @@
 module.exports = class EmailValidator {
-  validateEmail() {}
+  validateEmail() {
+    return {
+      key: "email",
+      valid: true,
+      message: "email is valid"
+    };
+  }
 };

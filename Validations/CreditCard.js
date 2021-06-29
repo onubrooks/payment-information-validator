@@ -19,9 +19,17 @@ module.exports = class CreditCardValidator {
     };
   }
 
-  validateExpirationDate() {}
+  validateExpirationDate() {
+    return {
+      key: "expiration_date",
+      valid: true,
+      message: "expiration date is valid"
+    };
+  }
 
   validateCVV(cvv) {
+    // a valid cvv has 3 or 4 digits, only numeric characters(0-9), and no alphabets or special chars
+    let re = /^[0-9]{3,4}$/;
     return {
       key: "cvv",
       valid: true,
@@ -29,5 +37,4 @@ module.exports = class CreditCardValidator {
     };
   }
 
-  validateEmail() {}
 };
