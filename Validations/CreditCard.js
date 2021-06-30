@@ -30,6 +30,14 @@ module.exports = class CreditCardValidator {
   validateCVV(cvv) {
     // a valid cvv has 3 or 4 digits, only numeric characters(0-9), and no alphabets or special chars
     let re = /^[0-9]{3,4}$/;
+    let valid = re.test(cvv);
+    if (!valid) {
+      return {
+        key: "cvv",
+        valid: false,
+        message: "cvv must be 3 or 4 numeric characters long"
+      };
+    }
     return {
       key: "cvv",
       valid: true,
