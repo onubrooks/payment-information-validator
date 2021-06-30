@@ -4,6 +4,7 @@ const Validator = require("./Validator")
 const CreditCardValidator = require("../Validations/CreditCard")
 const EmailValidator = require("../Validations/Email")
 const PhoneNumberValidator = require("../Validations/PhoneNumber")
+const AmountValidator = require("../Validations/Amount")
 const RequiredValidator = require("../Validations/Required")
 
 class PaymentInformationController {
@@ -18,7 +19,10 @@ class PaymentInformationController {
   async handle(req, res) {
     await Helpers.bodyParser(req)
     if (!req.body) {
-      this.handleResponse(res, 403, "Forbidden: empty payload");
+      this.handleResponse(res, 403, {
+        status: "Forbidden",
+        message: "Empty payload detected"
+      });
       return;
     }
     let body = JSON.parse(req.body);
@@ -27,26 +31,26 @@ class PaymentInformationController {
         // handle authorization
       let authorization = req.headers['authorization'] || ""
       
-      // let token = authorization.split(' ')[1]
-      // let auth = Helpers.authorize(token, body);// res.write(JSON.stringify(auth));res.end();return
+      let token = authorization.split(' ')[1]
+      let auth = Helpers.authorize(token, body);// res.write(JSON.stringify(auth));res.end();return
       // if(!auth){
-      //     this.handleResponse(res, 401, "unauthorized request")
+      //     this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
       //     return;
       // }
   
-      let contentType = req.headers['content-type']
-
       let requiredValidator = new RequiredValidator();
       let creditCardValidator = new CreditCardValidator();
       let emailValidator = new EmailValidator();
       let phoneNumberValidator = new PhoneNumberValidator();
-      let keys = ['card_number', 'cvv2', 'expiration_date', 'email', 'phone_number'];
+      let amountValidator = new AmountValidator();
+      let keys = ['card_number', 'cvv2', 'expiration_date', 'email', 'phone_number', 'charge_amount'];
       let allRules = {
         card_number: [requiredValidator.validateRequiredKey('card_number'), creditCardValidator.validateCardNumber],
         cvv2: [requiredValidator.validateRequiredKey('cvv2'), creditCardValidator.validateCVV],
         expiration_date: [requiredValidator.validateRequiredKey('expiration_date'), creditCardValidator.validateExpirationDate],
         email: [requiredValidator.validateRequiredKey('email'), emailValidator.validateEmail],
-        phone_number: [requiredValidator.validateRequiredKey('phone_number'), phoneNumberValidator.validatePhoneNumber]
+        phone_number: [requiredValidator.validateRequiredKey('phone_number'), phoneNumberValidator.validatePhoneNumber],
+        charge_amount: [requiredValidator.validateRequiredKey('charge_amount'), amountValidator.validateAmount]
       };
       let validator = new Validator();
       let validationResults = validator.validate(body, keys, allRules);
@@ -56,13 +60,13 @@ class PaymentInformationController {
           "Content-Type": "application/json"
         });
         res.write(
-          JSON.stringify({ valid: false, errors: validationResults })
+          JSON.stringify({ valid: false, message: 'Validation failed for some fields', errors: validationResults })
         );
       } else {
          res.writeHead(200, {
            "Content-Type": "application/json"
          });
-        res.write(JSON.stringify({ valid: true }));
+        res.write(JSON.stringify({ valid: true, message: 'Validation passed successfully' }));
       }
       res.end();
       
@@ -70,7 +74,10 @@ class PaymentInformationController {
 
       console.log(error);
 
-      this.handleResponse(res, 500, "something went wrong...");
+      this.handleResponse(res, 500, {
+        status: "Error",
+        message: "Something went wrong"
+      });
 
     }
   }
@@ -98,7 +105,10 @@ class PaymentInformationController {
 
       console.log(error);
 
-      this.handleResponse(res, 500, "something went wrong...");
+      this.handleResponse(res, 500, {
+        status: "Error",
+        message: "Something went wrong while generating hmac hash"
+      });
 
     }
   }
@@ -114,7 +124,7 @@ class PaymentInformationController {
   handleResponse(res, statusCode, message) {
     res.writeHead(statusCode, { "Content-Type": "application/json" });
 
-    res.end(message);
+    res.end(JSON.stringify(message));
   }
 };
 

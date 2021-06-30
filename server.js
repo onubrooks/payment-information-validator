@@ -15,7 +15,10 @@ const server = http.createServer((req, res) => {
         paymentInformationController.getHash(req, res);
         return;
     }
-    paymentInformationController.handleResponse(res, 404, "route not found");
+    paymentInformationController.handleResponse(res, 404, {
+      status: "Not Found",
+      message: "The requested resource was not found on this server"
+    });
 })
 
 const PORT = process.env.PORT || 5000

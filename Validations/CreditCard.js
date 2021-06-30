@@ -19,7 +19,40 @@ module.exports = class CreditCardValidator {
     };
   }
 
-  validateExpirationDate() {
+  validateExpirationDate(expiration_date) {
+    let mmddRe = /^(0?[1-9]|1[012])[\/\-]\d{4}$/;
+    let valid = mmddRe.test(expiration_date);
+    if (!valid) {
+      return {
+        key: "expiration_date",
+        valid: false,
+        message: "expiration_date is not a valid mm/yyyy date format"
+      };
+    }
+    let dateArr = expiration_date.split(/[\/\-]/);
+    let month = parseInt(dateArr[0]),
+      year = parseInt(dateArr[1]);
+
+    // Check the range of year
+    if(year < 1000 || year > 3000){
+      return {
+        key: "expiration_date",
+        valid: false,
+        message: "year is out of range"
+      };
+    }
+
+    // check if card is expired
+    let today = new Date(), expiry = new Date(year, month-1);
+    if(today.getTime() > expiry.getTime()){
+      // today is newer
+      return {
+        key: "expiration_date",
+        valid: false,
+        message: "card is expired"
+      };
+    }
+
     return {
       key: "expiration_date",
       valid: true,
