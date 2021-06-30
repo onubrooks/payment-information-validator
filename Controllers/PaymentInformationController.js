@@ -33,10 +33,10 @@ class PaymentInformationController {
       
       let token = authorization.split(' ')[1]
       let auth = Helpers.authorize(token, body);// res.write(JSON.stringify(auth));res.end();return
-      // if(!auth){
-      //     this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
-      //     return;
-      // }
+      if(!auth){
+          this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
+          return;
+      }
   
       let requiredValidator = new RequiredValidator();
       let creditCardValidator = new CreditCardValidator();
@@ -66,7 +66,7 @@ class PaymentInformationController {
          res.writeHead(200, {
            "Content-Type": "application/json"
          });
-        res.write(JSON.stringify({ valid: true, message: 'Validation passed successfully' }));
+         res.write(JSON.stringify({ valid: true, message: 'Validation passed successfully' }));
       }
       res.end();
       
