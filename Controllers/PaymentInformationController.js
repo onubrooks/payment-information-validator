@@ -98,7 +98,10 @@ class PaymentInformationController {
       res.writeHead(200, {
         "Content-Type": "application/json"
       });
-      res.write(hash);
+      res.write(JSON.stringify({
+        "status": "success",
+        "hash": hash
+      }));
       res.end();
       
     } catch (error) {

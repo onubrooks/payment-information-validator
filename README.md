@@ -28,7 +28,7 @@ This API uses a bearer token authorization. To make a successful request, a hash
 
 `localhost:5000/api/get-hash`
 
-Ensure to use the exact payload you will use to make the final request.
+Ensure to use the exact payload you will use to make the validation request.
 
 #### Get Hash Example
 
@@ -47,7 +47,14 @@ curl --location --request POST 'localhost:5000/api/get-hash' \
 
 #### Get Hash Response
 
-`d29b79b005beb0b1fbc5fa61167fc0d7fa5c0f0b8ef0b3e2db0c52148194368fa53ac655508b55e9fd3afafb48a957122f2dfeb8f8461ca0cdb7e6283575930d`
+Below is a sample HMAC hash that is sent as a response:
+
+```json
+{
+    "status": "success",
+    "hash": "d29b79b005beb0b1fbc5fa61167fc0d7fa5c0f0b8ef0b3e2db0c52148194368fa53ac655508b55e9fd3afafb48a957122f2dfeb8f8461ca0cdb7e6283575930d"
+}
+```
 
 ### Validate Card Details
 
@@ -121,8 +128,40 @@ Note that all validation errors detected is returned in the `errors` array of th
 
 ### Validations
 
-These are the validations to expect:
+All fields below are required. In addition, these are the validations the API provides:
+
+1. card_number: must be a valid credit card number based on Luhn's Algorithm.
+
+2. cvv2: must be a valid cvv2 number, having 3 or 4 digits.
+
+3. expiration_date: must be a valid date in the format mm/yyyy, must be higher than the current date.
+
+4. email: must be a valid email format.
+
+5. phone_number: must be a valid phone number with 11 digits, or international format xxx-xxx-xxxx. Parenthesis () are allowed in the first group.
+
+6. charge_amount: amount must be a non-negative integer greater than zero.
 
 ### Errors and Status Codes
 
 These are the expected status codes and their meanings:
+
+1. 200: ok. This means a successful request.
+
+2. 401: Unauthorized. This occurs when authentication fails, due to invalid authorization header or none given.
+
+3. 403: Forbidden. The request was understood but due to some constraints rejected by the server. Usually an empty payload would cause this to happen.
+
+4. 404: Not found. This means the endpoint/resource requested was not found on the server.
+
+5. 500: Internal server error. This indicates that an unexpected error was encountered on the server.
+
+### Supported Data Formats
+
+1. JSON: this is the default and expected format for the data to be sent to the API.
+
+2. XML: this format is also supported to send the payload to the API.
+
+### Questions
+
+For questions or clarifications, please contact the author at `abahonuh@gmail.com` or find out other works at [onubrooks](https://github.com/onubrooks).
