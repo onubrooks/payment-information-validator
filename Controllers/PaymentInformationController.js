@@ -17,7 +17,12 @@ class PaymentInformationController {
    * @return {http.ServerResponse}
    */
   async handle(req, res) {
-    await Helpers.bodyParser(req)
+    if(req.headers['content-type'] == 'application/xml') {
+      await Helpers.bodyParserXML(req)
+    }else {
+      await Helpers.bodyParserJSON(req);
+    }
+  
     if (!req.body) {
       this.handleResponse(res, 403, {
         status: "Forbidden",
@@ -25,24 +30,18 @@ class PaymentInformationController {
       });
       return;
     }
-    if(req.headers['content-type'] == 'application/xml') {
-      await Helpers.parseXML(req)
-      res.write(req.body);
-      res.end();
-      return;
-    }
-    let body = JSON.parse(req.body);
+    let body = req.body;
     
     try {
         // handle authorization
       let authorization = req.headers['authorization'] || ""
       
-      // let token = authorization.split(' ')[1]
-      // let auth = Helpers.authorize(token, body);
-      // if(!auth){
-      //     this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
-      //     return;
-      // }
+      let token = authorization.split(' ')[1]
+      let auth = Helpers.authorize(token, body);
+      if(!auth){
+          this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
+          return;
+      }
   
       let requiredValidator = new RequiredValidator();
       let creditCardValidator = new CreditCardValidator();
@@ -97,8 +96,12 @@ class PaymentInformationController {
    * @return {http.ServerResponse}
    */
   async getHash(req, res) {
-    await Helpers.bodyParser(req)
-    let body = JSON.parse(req.body);
+    if (req.headers["content-type"] == "application/xml") {
+      await Helpers.bodyParserXML(req);
+    } else {
+      await Helpers.bodyParserJSON(req);
+    }
+    let body = req.body;
     try {
       let hash = Helpers.getHash(body);
       res.writeHead(200, {

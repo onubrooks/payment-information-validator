@@ -28,7 +28,7 @@ This API uses bearer token authorization. To make a successful request, a HMAC h
 
 `localhost:5000/api/get-hash`
 
-Ensure to use the exact payload you will use to make the validation request.
+Ensure to use the exact payload and content-type header you will use to make the validation request.
 
 #### Get Hash Example
 

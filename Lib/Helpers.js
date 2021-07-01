@@ -3,7 +3,7 @@ const https = require("https");
 
 const PRIVATE_KEY = "i-love-node-js";
 
-async function bodyParser(req) {
+async function bodyParserJSON(req) {
   return new Promise((resolve, reject) => {
     let chunked = "";
     req
@@ -14,9 +14,10 @@ async function bodyParser(req) {
       .on("data", chunk => {
         chunked += chunk;
       })
-      .on("end", () => {
-        req.body = chunked // JSON.parse(chunked);
+      .on("end", async () => {
+        req.body = JSON.parse(chunked);
         resolve();
+        
       });
   });
 }
@@ -35,34 +36,52 @@ function getHash(body) {
 
 }
 
-async function parseXML(req) {
-  let querystring = require("querystring");
-  let pathquery = querystring.stringify({
-    xml: req.body
-  });
-  return https
-    .get(`https://api.factmaven.com/xml-to-json?${pathquery}`, resp => {
-      let chunked = "";
-
-      // A chunk of data has been received.
-      resp.on("data", chunk => {
+async function bodyParserXML(req) {
+  return new Promise((resolve, reject) => {
+    let chunked = "";
+    req
+      .on("error", err => {
+        console.error(err);
+        reject();
+      })
+      .on("data", chunk => {
         chunked += chunk;
-      });
+      })
+      .on("end", async () => {
+        let querystring = require("querystring");
+        let pathquery = querystring.stringify({
+          xml: chunked
+        });
+        let call = https
+          .get(
+            `https://api.factmaven.com/xml-to-json/?${pathquery}`,
+            resp => {
+              let chunked = "";
 
-      // The whole response has been received. Print out the result.
-      resp.on("end", () => {
-        req.body = chunked;
-        console.log(chunked)
+              // A chunk of data has been received.
+              resp.on("data", chunk => {
+                chunked += chunk;
+              });
+
+              // The whole response has been received.
+              resp.on("end", () => {
+                req.body = JSON.parse(chunked).root;
+                resolve();
+              });
+            }
+          )
+          .on("error", err => {
+            console.log("Error: " + err.message);
+          })
+          .end();
       });
-    })
-    .on("error", err => {
-      console.log("Error: " + err.message);
-    });
+  });
+  
 }
 
 module.exports = {
-    bodyParser,
+    bodyParserJSON,
     authorize,
     getHash,
-    parseXML
+    bodyParserXML
 }
