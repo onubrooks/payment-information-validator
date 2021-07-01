@@ -34,8 +34,21 @@ function getHash(body) {
 
 }
 
+async function parseXML(req) {
+  return fetch('xml-json-api', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/xml',
+      'Accept': 'application/json'
+    }
+  })
+    // no need to call res.json(), req.body will be parsed in the controller
+    .then(data => req.body = data);
+}
+
 module.exports = {
     bodyParser,
     authorize,
-    getHash
+    getHash,
+    parseXML
 }

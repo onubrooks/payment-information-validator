@@ -25,6 +25,9 @@ class PaymentInformationController {
       });
       return;
     }
+    if(req.headers['authorization'] == 'application/xml') {
+      await Helpers.parseXML(req)
+    }
     let body = JSON.parse(req.body);
     
     try {
@@ -32,7 +35,7 @@ class PaymentInformationController {
       let authorization = req.headers['authorization'] || ""
       
       let token = authorization.split(' ')[1]
-      let auth = Helpers.authorize(token, body);// res.write(JSON.stringify(auth));res.end();return
+      let auth = Helpers.authorize(token, body);
       if(!auth){
           this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
           return;
