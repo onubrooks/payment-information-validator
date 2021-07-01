@@ -25,8 +25,11 @@ class PaymentInformationController {
       });
       return;
     }
-    if(req.headers['authorization'] == 'application/xml') {
+    if(req.headers['content-type'] == 'application/xml') {
       await Helpers.parseXML(req)
+      res.write(req.body);
+      res.end();
+      return;
     }
     let body = JSON.parse(req.body);
     
@@ -34,12 +37,12 @@ class PaymentInformationController {
         // handle authorization
       let authorization = req.headers['authorization'] || ""
       
-      let token = authorization.split(' ')[1]
-      let auth = Helpers.authorize(token, body);
-      if(!auth){
-          this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
-          return;
-      }
+      // let token = authorization.split(' ')[1]
+      // let auth = Helpers.authorize(token, body);
+      // if(!auth){
+      //     this.handleResponse(res, 401, {status: 'Unauthorized', message: "Request authentication failed"})
+      //     return;
+      // }
   
       let requiredValidator = new RequiredValidator();
       let creditCardValidator = new CreditCardValidator();

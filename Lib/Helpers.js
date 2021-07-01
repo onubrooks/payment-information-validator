@@ -1,4 +1,5 @@
 let crypto = require("crypto");
+const https = require("https");
 
 const PRIVATE_KEY = "i-love-node-js";
 
@@ -35,15 +36,28 @@ function getHash(body) {
 }
 
 async function parseXML(req) {
-  return fetch('xml-json-api', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/xml',
-      'Accept': 'application/json'
-    }
-  })
-    // no need to call res.json(), req.body will be parsed in the controller
-    .then(data => req.body = data);
+  let querystring = require("querystring");
+  let pathquery = querystring.stringify({
+    xml: req.body
+  });
+  return https
+    .get(`https://api.factmaven.com/xml-to-json?${pathquery}`, resp => {
+      let chunked = "";
+
+      // A chunk of data has been received.
+      resp.on("data", chunk => {
+        chunked += chunk;
+      });
+
+      // The whole response has been received. Print out the result.
+      resp.on("end", () => {
+        req.body = chunked;
+        console.log(chunked)
+      });
+    })
+    .on("error", err => {
+      console.log("Error: " + err.message);
+    });
 }
 
 module.exports = {
