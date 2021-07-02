@@ -73,6 +73,33 @@ curl --location --request POST 'localhost:5000/api/validate-card' \
 
 ```
 
+#### Sample JSON Payload
+
+The following is a sample JSON payload to be validated:
+
+```json
+
+```
+
+#### Sample XML Payload
+
+The following is a sample XML payload to be validated:
+
+```xml
+
+<root>
+    <email>hello@example.org</email>
+    <card_number>374245455400126</card_number>
+    <cvv2>123</cvv2>
+    <expiration_date>07/2021</expiration_date>
+    <phone_number>08090909090</phone_number>
+    <charge_amount>5000</charge_amount>
+</root>
+
+```
+
+*Note:* The top level tag in your XML must be named `root` in order for the data to be parsed correctly.
+
 #### Validate Details Response
 
 A successful request/response cycle, when all fields satisfy the validation rules, looks like this:
