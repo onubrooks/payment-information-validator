@@ -19,8 +19,14 @@ class PaymentInformationController {
   async handle(req, res) {
     if(req.headers['content-type'] == 'application/xml') {
       await Helpers.bodyParserXML(req)
-    }else {
+    }else if(req.headers['content-type'] == 'application/json') {
       await Helpers.bodyParserJSON(req);
+    } else {
+      this.handleResponse(res, 403, {
+        status: "Forbidden",
+        message: "Unsupported content type"
+      });
+      return;
     }
   
     if (!req.body) {
@@ -98,8 +104,14 @@ class PaymentInformationController {
   async getHash(req, res) {
     if (req.headers["content-type"] == "application/xml") {
       await Helpers.bodyParserXML(req);
-    } else {
+    } else if (req.headers["content-type"] == "application/json") {
       await Helpers.bodyParserJSON(req);
+    } else {
+      this.handleResponse(res, 403, {
+        status: "Forbidden",
+        message: "Unsupported content type"
+      });
+      return;
     }
     let body = req.body;
     try {
