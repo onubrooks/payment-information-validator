@@ -14,7 +14,7 @@ You need to have Node and npm installed on your machine to run this code locally
 
 You can clone this repository using the command below:
 
-`git clone {URL}`
+`git clone https://github.com/onubrooks/payment-information-validator.git`
 
 And run the the project like this:
 
@@ -78,7 +78,14 @@ curl --location --request POST 'localhost:5000/api/validate-card' \
 The following is a sample JSON payload to be validated:
 
 ```json
-
+{
+    "email": "hello@example.org",
+    "card_number": "374245455400126",
+    "cvv2": "123",
+    "expiration_date": "07/2021",
+    "phone_number": "08090909090",
+    "charge_amount": "5000"
+}
 ```
 
 #### Sample XML Payload
